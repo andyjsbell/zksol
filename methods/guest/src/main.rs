@@ -1,4 +1,4 @@
-use log::{debug, error, info};
+use log::info;
 use risc0_zkvm::guest::env;
 use solana_sbpf::aligned_memory::AlignedMemory;
 use solana_sbpf::elf::Executable;
