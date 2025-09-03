@@ -83,6 +83,7 @@ fn main() {
         Err(e) => panic!("Failed to create memory regions: {:?}", e),
     };
 
+    let mut context = SolanaContext::default();
     let mut vm = EbpfVm::new(
         executable.get_loader().clone(),
         sbpf_version,
