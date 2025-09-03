@@ -7,6 +7,8 @@ use solana_sbpf::{
 
 use crate::runtime::{Account, Pubkey};
 
+/// Serializer for converting Solana account data into SBPF VM memory format.
+/// Handles memory layout, alignment, and region management for VM input.
 pub struct Serializer {
     buffer: AlignedMemory<HOST_ALIGN>,
     regions: Vec<MemoryRegion>,
@@ -14,11 +16,13 @@ pub struct Serializer {
     region_start: usize,
 }
 
+// Solana-specific constants for memory alignment and account handling
 pub const BPF_ALIGN_OF_U128: usize = 8;
 pub const NON_DUP_MARKER: u8 = u8::MAX;
-pub const MAX_PERMITTED_DATA_INCREASE: usize = 1_024 * 10;
+pub const MAX_PERMITTED_DATA_INCREASE: usize = 1_024 * 10; // 10KB max growth
 pub type Address = u64;
 
+/// Represents a serialized account in VM memory with address pointers.
 #[allow(dead_code)]
 pub struct VmSerializedAccount {
     public_key_addr: Address,
@@ -29,6 +33,7 @@ pub struct VmSerializedAccount {
 }
 
 impl Serializer {
+    /// Creates a new serializer with specified buffer size and starting virtual address.
     pub fn new(size: usize, start_addr: Address) -> Self {
         Serializer {
             buffer: AlignedMemory::with_capacity(size),
@@ -42,7 +47,7 @@ impl Serializer {
         self.buffer.fill_write(num, value).map_err(|_| "todo")
     }
 
-    // Write value
+    /// Writes a POD (Plain Old Data) value to the buffer and returns its virtual address.
     fn write<T: Pod>(&mut self, value: T) -> Address {
         self.debug_assert_alignment::<T>();
         let vaddr = self
@@ -89,6 +94,7 @@ impl Serializer {
         (self.buffer, self.regions)
     }
 
+    /// Writes account data with padding for potential growth during execution.
     fn write_account(&mut self, account: &mut Account) -> Address {
         let vm_data_addr = self.vaddr.saturating_add(self.buffer.len() as u64);
         self.write_all(&account.data);
@@ -99,6 +105,8 @@ impl Serializer {
         vm_data_addr
     }
 
+    /// Serializes accounts and instruction data in Solana's input format.
+    /// Returns memory buffer, memory regions for VM mapping, and account metadata.
     pub fn serialize_parameters(
         accounts: Vec<Account>,
         instruction_data: &[u8],
@@ -109,6 +117,8 @@ impl Serializer {
         Vec<VmSerializedAccount>,
     ) {
         env::log(&format!("number of accounts: {}", accounts.len()));
+
+        // Calculate total buffer size needed for serialization
 
         let mut size = size_of::<u64>();
         for account in &accounts {
@@ -135,6 +145,7 @@ impl Serializer {
         let mut serialized_accounts = Vec::new();
         let mut s = Self::new(size, MM_INPUT_START);
 
+        // Serialize accounts in Solana's expected format
         s.write((accounts.len() as u64).to_le());
         for mut account in accounts {
             s.write::<u8>(NON_DUP_MARKER);

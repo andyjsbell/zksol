@@ -5,15 +5,19 @@ use std::fs;
 use methods::{SOL_ELF, SOL_ID};
 use risc0_zkvm::{default_prover, ExecutorEnv};
 
+/// Host application that generates zero-knowledge proofs for Solana program execution.
+/// Loads a compiled Solana BPF program (.so file) and executes it inside the RISC Zero zkVM,
+/// producing a verifiable proof of correct execution.
 fn main() {
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::filter::EnvFilter::from_default_env())
         .init();
 
-    // Load solana program
+    // Load compiled Solana BPF program bytecode
     let bytecode =
         fs::read("minimal-sol/target/deploy/minimal_sol.so").expect("Failed to read bytecode");
 
+    // Create zkVM execution environment with Solana bytecode as input
     let env = ExecutorEnv::builder()
         .write(&bytecode)
         .unwrap()
@@ -22,12 +26,16 @@ fn main() {
 
     let prover = default_prover();
 
+    // Execute the Solana program in zkVM and generate proof
     println!("Generating proof of Solana program execution...");
     let prove_info = prover.prove(env, SOL_ELF).unwrap();
 
+    // Display execution statistics
     println!("Proof generated successfully!");
     println!("  Total cycles: {}", prove_info.stats.total_cycles);
     println!("  User cycles: {}", prove_info.stats.user_cycles);
+
+    // Extract execution result from proof journal
     let receipt = prove_info.receipt;
     let executed_successfully: bool = receipt.journal.decode().unwrap();
     if executed_successfully {
@@ -36,7 +44,7 @@ fn main() {
         println!("Error - Solana program failed execution");
     }
 
-    // Verify the receipt
+    // Cryptographically verify the proof is valid for this specific program
     println!("\nVerifying proof...");
     receipt.verify(SOL_ID).unwrap();
     println!("Proof verified!");
