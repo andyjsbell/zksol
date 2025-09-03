@@ -18,12 +18,11 @@
 //! <https://www.kernel.org/doc/Documentation/networking/filter.txt>, or for a shorter version of
 //! the list of the operation codes: <https://github.com/iovisor/bpf-docs/blob/master/eBPF.md>
 
-use core::hash::Hash;
+use alloc::fmt;
 use alloc::vec::Vec;
 use byteorder::{ByteOrder, LittleEndian};
+use core::hash::Hash;
 use hash32::{Hasher, Murmur3Hasher};
-use alloc::fmt;
-
 
 /// Solana BPF version flag
 pub const EF_SBPF_V2: u32 = 0x20;
@@ -40,6 +39,10 @@ pub const SCRATCH_REGS: usize = 4;
 /// Alignment of the memory regions in host address space in bytes
 pub const HOST_ALIGN: usize = 16;
 /// Upper half of a pointer is the region index, lower half the virtual address inside that region.
+/// For 32-bit systems, use smaller address bits to fit in memory
+#[cfg(target_pointer_width = "32")]
+pub const VIRTUAL_ADDRESS_BITS: usize = 24; // 16MB regions for 32-bit
+#[cfg(not(target_pointer_width = "32"))]
 pub const VIRTUAL_ADDRESS_BITS: usize = 32;
 
 /// Size (and alignment) of a memory region
