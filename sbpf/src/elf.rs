@@ -33,7 +33,7 @@ use crate::{
 
 #[cfg(all(feature = "jit", not(target_os = "windows"), target_arch = "x86_64"))]
 use crate::jit::{JitCompiler, JitProgram};
-use alloc::{collections::BTreeMap, fmt::Debug, str};
+use alloc::{collections::BTreeMap, fmt::Debug};
 use byteorder::{ByteOrder, LittleEndian};
 use core::{mem, ops::Range};
 
@@ -1374,18 +1374,6 @@ impl<C: ContextObject> Executable<C> {
         }
 
         Ok(())
-    }
-
-    #[allow(dead_code)]
-    fn dump_data(name: &str, prog: &[u8]) {
-        let mut eight_bytes: Vec<u8> = Vec::new();
-        for i in prog.iter() {
-            if eight_bytes.len() >= 7 {
-                eight_bytes.clear();
-            } else {
-                eight_bytes.push(*i);
-            }
-        }
     }
 }
 
