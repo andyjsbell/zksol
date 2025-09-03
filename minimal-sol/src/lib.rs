@@ -2,8 +2,6 @@ use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, msg, pubkey::Pubkey,
 };
 
-use solana_program::sysvar::slot_history::ProgramError;
-
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
