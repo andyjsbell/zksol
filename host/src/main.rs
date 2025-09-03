@@ -6,14 +6,13 @@ use methods::{SOL_ELF, SOL_ID};
 use risc0_zkvm::{default_prover, ExecutorEnv};
 
 fn main() {
-    // Initialize tracing. In order to view logs, run `RUST_LOG=info cargo run`
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::filter::EnvFilter::from_default_env())
         .init();
 
-    // Load elf file with the ebpf bytecode
-    let bytecode = fs::read("minimal-sol/target/deploy/minimal_sol.so")
-        .expect("Failed to read bytecode");
+    // Load solana program
+    let bytecode =
+        fs::read("minimal-sol/target/deploy/minimal_sol.so").expect("Failed to read bytecode");
 
     let env = ExecutorEnv::builder()
         .write(&bytecode)
@@ -21,22 +20,24 @@ fn main() {
         .build()
         .unwrap();
 
-    // Obtain the default prover.
     let prover = default_prover();
 
-    // Proof information by proving the specified ELF binary.
-    // This struct contains the receipt along with statistics about execution of the guest
+    println!("Generating proof of Solana program execution...");
     let prove_info = prover.prove(env, SOL_ELF).unwrap();
 
-    // extract the receipt.
+    println!("Proof generated successfully!");
+    println!("  Total cycles: {}", prove_info.stats.total_cycles);
+    println!("  User cycles: {}", prove_info.stats.user_cycles);
     let receipt = prove_info.receipt;
+    let executed_successfully: bool = receipt.journal.decode().unwrap();
+    if executed_successfully {
+        println!("Solana program executed successfully!");
+    } else {
+        println!("Error - Solana program failed execution");
+    }
 
-    // TODO: Implement code for retrieving receipt journal here.
-
-    // For example:
-    let _output: u32 = receipt.journal.decode().unwrap();
-
-    // The receipt was verified at the end of proving, but the below code is an
-    // example of how someone else could verify this receipt.
+    // Verify the receipt
+    println!("\nVerifying proof...");
     receipt.verify(SOL_ID).unwrap();
+    println!("Proof verified!");
 }
