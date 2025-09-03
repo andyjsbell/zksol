@@ -2,6 +2,50 @@
 
 This project implements a **zero-knowledge proof execution environment for Solana programs**. It allows Solana BPF programs to be executed within RISC Zero's zkVM, generating cryptographic proofs of correct execution. The core problem is bridging Solana's runtime (SBPF) with RISC Zero's proving system to enable verifiable off-chain computation of Solana programs.
 
+## Prerequisites
+
+- [Rust](https://rustup.rs/) with rustup installed
+- [Solana CLI tools](https://docs.solana.com/cli/install-solana-cli-tools) - Version 2.0.24
+- [RISC Zero toolchain](https://dev.risczero.com/api/zkvm/quickstart) - Version 0.5.0
+
+## Quick Start
+
+### Build and Run
+
+The easiest way to build and run the project:
+
+```bash
+./run.sh
+```
+
+This script will:
+1. Build the Solana BPF program
+2. Execute it in the RISC Zero zkVM in development mode
+3. Generate and verify the proof
+
+### Manual Build Steps
+
+If you prefer to build manually:
+
+1. **Build the Solana BPF program:**
+```bash
+cd minimal-sol
+cargo-build-sbf
+cd ..
+```
+
+2. **Run the zkVM prover in development mode:**
+```bash
+RISC0_DEV_MODE=1 cargo run --release
+```
+
+For production proofs (without dev mode), omit the `RISC0_DEV_MODE` flag:
+```bash
+cargo run --release
+```
+
+**Note:** Production proofs take significantly longer to generate but are cryptographically valid.
+
 ## Key Technical Components
 
 1. **SBPF VM Integration**
