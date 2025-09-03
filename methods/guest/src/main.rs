@@ -1,6 +1,8 @@
+use log::{debug, error, info};
 use risc0_zkvm::guest::env;
+use solana_sbpf::elf::Executable;
 use solana_sbpf::{program::BuiltinProgram, vm::Config};
-
+use std::sync::Arc;
 pub struct SolanaContext {
     pub compute_units_remaining: u64,
     pub compute_units_consumed: u64, // Track total consumption for monitoring
@@ -29,13 +31,24 @@ impl solana_sbpf::vm::ContextObject for SolanaContext {
 }
 
 fn main() {
-    let mut loader = BuiltinProgram::<SolanaContext>::new_loader(Config {
+    let loader = BuiltinProgram::<SolanaContext>::new_loader(Config {
         enable_symbol_and_section_labels: true,
         reject_broken_elfs: true,
         enable_instruction_tracing: true,
         ..Config::default()
     });
 
-    let input: u32 = env::read();
-    env::commit(&input);
+    let bytecode: Vec<u8> = env::read();
+
+    let executable = match Executable::from_elf(&bytecode, Arc::new(loader)) {
+        Ok(exec) => {
+            info!("Detected SBPF Version: {:?}", exec.get_sbpf_version());
+            exec
+        }
+        Err(e) => {
+            panic!("Failed to create executable: {:?}", e);
+        }
+    };
+
+    // env::commit(&input);
 }
