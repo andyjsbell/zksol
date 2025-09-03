@@ -1,4 +1,3 @@
-use alloc::fmt::format;
 use risc0_zkvm::guest::env;
 use solana_sbpf::{
     aligned_memory::{AlignedMemory, Pod},
@@ -18,9 +17,9 @@ pub struct Serializer {
 pub const BPF_ALIGN_OF_U128: usize = 8;
 pub const NON_DUP_MARKER: u8 = u8::MAX;
 pub const MAX_PERMITTED_DATA_INCREASE: usize = 1_024 * 10;
-pub const MAX_PERMITTED_DATA_LENGTH: u64 = 10 * 1024 * 1024;
 pub type Address = u64;
 
+#[allow(dead_code)]
 pub struct VmSerializedAccount {
     public_key_addr: Address,
     owner_key_addr: Address,
