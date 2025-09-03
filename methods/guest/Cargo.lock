@@ -1250,6 +1250,7 @@ dependencies = [
 name = "sol"
 version = "0.1.0"
 dependencies = [
+ "log",
  "risc0-zkvm",
  "solana-sbpf",
 ]
