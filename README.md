@@ -1,4 +1,4 @@
-# Solana SBPF Runtime in RISC Zero zkVM
+# zkSol - Solana SBPF Runtime in RISC Zero zkVM
 
 This project implements a **zero-knowledge proof execution environment for Solana programs**. It allows Solana BPF programs to be executed within RISC Zero's zkVM, generating cryptographic proofs of correct execution. The core problem is bridging Solana's runtime (SBPF) with RISC Zero's proving system to enable verifiable off-chain computation of Solana programs.
 
