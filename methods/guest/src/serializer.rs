@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Andy Bell <andyjsbell@gmail.com>
+// SPDX-License-Identifier: MIT
+
 use risc0_zkvm::guest::env;
 use solana_sbpf::{
     aligned_memory::{AlignedMemory, Pod},

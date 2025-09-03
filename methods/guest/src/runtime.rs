@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Andy Bell <andyjsbell@gmail.com>
+// SPDX-License-Identifier: MIT
+
 /// Minimal runtime types for Solana program execution in zkVM.
 
 /// Represents a Solana account with all necessary metadata.
