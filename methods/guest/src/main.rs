@@ -87,7 +87,7 @@ fn main() {
     let mut vm = EbpfVm::new(
         executable.get_loader().clone(),
         sbpf_version,
-        &mut SolanaContext::default(),
+        &mut context,
         memory_mapping,
         stack_len,
     );
